@@ -2,28 +2,29 @@ import torch.nn as nn
 
 
 class MLP(nn.Module):
-    def __init__(self, input_dim, hidden_dim, output_dim, dropout_rate):
+    def __init__(self, input_dim, hidden_dim, output_dim, layers, dropout_rate):
         super(MLP, self).__init__()
-        self.fc1 = nn.Linear(input_dim, hidden_dim * 2)
-        self.relu1 = nn.ReLU()
-        self.dropout1 = nn.Dropout(dropout_rate)
-        self.fc2 = nn.Linear(hidden_dim * 2, hidden_dim)
-        self.relu2 = nn.ReLU()
-        self.dropout2 = nn.Dropout(dropout_rate)
-        self.fc3 = nn.Linear(hidden_dim, int(hidden_dim / 4))
-        self.relu3 = nn.ReLU()
-        self.dropout3 = nn.Dropout(dropout_rate)
-        self.fc4 = nn.Linear(int(hidden_dim / 4), output_dim)
-        self.relu4 = nn.ReLU()
-        self.sigmoid = nn.Sigmoid()
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+        self.output_dim = output_dim
+        self.layers = layers
+        self.dropout_rate = dropout_rate
+
+        self.layers = nn.ModuleList(
+            [nn.Linear(input_dim, hidden_dim), nn.ReLU(),
+             nn.Dropout(dropout_rate)]
+        )
+        for _ in range(layers - 1):
+            self.layers.extend(
+                [
+                    nn.Linear(hidden_dim, hidden_dim),
+                    nn.ReLU(),
+                    nn.Dropout(dropout_rate),
+                ]
+            )
+        self.layers.extend([nn.Linear(hidden_dim, output_dim)])
 
     def forward(self, x):
-        x = self.relu1(self.fc1(x))
-        x = self.dropout1(x)
-        x = self.relu2(self.fc2(x))
-        x = self.dropout2(x)
-        x = self.relu3(self.fc3(x))
-        x = self.dropout3(x)
-        x = self.relu4(self.fc4(x))
-        x = self.sigmoid(x)
+        for layer in self.layers:
+            x = layer(x)
         return x
