@@ -166,5 +166,5 @@ for epoch in range(num_epochs):
         f'Validation accuracy: {val_acc:.4f}, sensitivity: {sensitivity:.4f}, specificity: {specificity:.4f}')
 
     # Save the whole model ckeckpoint
-    if epoch % 10 == 0:
+    if (epoch + 1) % 10 == 0:
         torch.save(model.state_dict(), f'pths/clam-{epoch}.pth')
