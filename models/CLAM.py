@@ -95,7 +95,8 @@ class RNN(nn.Module):
 
         if rnn_type == 'lstm':
             self.rnn_layer = nn.LSTM(
-                input_size=input_size,
+                # input_size=input_size,
+                input_size=512,
                 hidden_size=hid_size,
                 num_layers=num_rnn_layers,
                 dropout=dropout_p if num_rnn_layers > 1 else 0,
@@ -122,7 +123,7 @@ class CNN(nn.Module):
     def __init__(
         self,
         input_size=1,
-        hid_size=256,
+        hid_size=128,
         kernel_size=5,
         num_classes=5,
     ):
@@ -171,7 +172,7 @@ class RNNModel(nn.Module):
         super().__init__()
 
         self.rnn_layer = RNN(
-            input_size=128,  # hid_size * 2 if bidirectional else hid_size,
+            input_size=32,  # hid_size * 2 if bidirectional else hid_size,
             hid_size=hid_size,
             rnn_type=rnn_type,
             bidirectional=bidirectional
@@ -188,6 +189,7 @@ class RNNModel(nn.Module):
         )
         self.avgpool = nn.AdaptiveAvgPool1d((1))
         self.fc = nn.Linear(in_features=hid_size, out_features=n_classes)
+        self.final = nn.Linear(n_classes, 1)
 
     def forward(self, input):
         x = self.conv1(input)
@@ -195,7 +197,9 @@ class RNNModel(nn.Module):
         x, _ = self.rnn_layer(x)
         x = self.avgpool(x)
         x = x.view(-1, x.size(1) * x.size(2))
-        x = F.softmax(self.fc(x), dim=1)  # .squeeze(1)
+        # x = F.softmax(self.fc(x), dim=1)  # .squeeze(1)
+        x = self.fc(x)
+        x = self.final(x).squeeze(1)
         return x
 
 
@@ -212,7 +216,7 @@ class RNNAttentionModel(nn.Module):
         super().__init__()
 
         self.rnn_layer = RNN(
-            input_size=128,
+            input_size=46,
             hid_size=hid_size,
             rnn_type=rnn_type,
             bidirectional=bidirectional
@@ -229,7 +233,9 @@ class RNNAttentionModel(nn.Module):
         )
         self.avgpool = nn.AdaptiveMaxPool1d((1))
         self.attn = nn.Linear(hid_size, hid_size, bias=False)
-        self.fc = nn.Linear(in_features=hid_size, out_features=n_classes)
+        self.fc = nn.Linear(in_features=hid_size*2, out_features=n_classes)
+        self.final = nn.Linear(n_classes, 1)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, input):
         x = self.conv1(input)
@@ -241,11 +247,22 @@ class RNNAttentionModel(nn.Module):
         x = x.transpose(2, 1)
         x = self.avgpool(x)
         x = x.view(-1, x.size(1) * x.size(2))
-        x = F.softmax(self.fc(x), dim=-1)
+        # x = F.softmax(self.fc(x), dim=-1)
+        x = self.fc(x)
+        x = self.final(x).squeeze(1)
+        x = self.sigmoid(x)
         return x
 
 
 if __name__ == '__main__':
-    rnn_attn = RNNAttentionModel(1, 64, 'lstm', False)
-    rnn = RNNModel(1, 64, 'lstm', True)
-    cnn = CNN(num_classes=5, hid_size=128)
+    # rnn_attn = RNNAttentionModel(1, 64, 'lstm', False)
+    # rnn = RNNModel(1, 64, 'lstm', True)
+    # cnn = CNN(num_classes=5, hid_size=128)
+
+    model = RNNAttentionModel(input_size=4, hid_size=128, rnn_type='lstm',
+                              bidirectional=True, n_classes=2, kernel_size=5)
+
+    # Test the model
+    x = torch.randn(32, 4, 2048)
+    y = model(x)
+    print(y.shape)

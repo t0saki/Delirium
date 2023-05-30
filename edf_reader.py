@@ -16,9 +16,9 @@ if __name__ == '__main__':
     sigbufs, signal_labels = read_edf_file(
         'datasets/EDF-ND/29-余振琮-ND-EEG-2.edf')
     # Draw the first 20 seconds of the first channel:
-    import matplotlib.pyplot as plt
-    plt.plot(sigbufs[0, 0:2000])
-    plt.show()
+    # import matplotlib.pyplot as plt
+    # plt.plot(sigbufs[0, 0:2000])
+    # plt.show()
     # plt.plot(signal_labels[0, 0:2000])
     # plt.show()
     print(signal_labels)
