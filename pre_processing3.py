@@ -4,7 +4,9 @@ from sklearn.preprocessing import MinMaxScaler
 
 df = pd.read_csv('output.csv')
 
-data = df
+removed_cols = ['Postoperative Olanzapine',
+                'Postoperative Fluphenazine', 'Postoperative Flupentixol']
+data = df.drop(removed_cols, axis=1)
 
 # Convert NaN to -max
 data_full = pd.DataFrame()
