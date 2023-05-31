@@ -88,6 +88,8 @@ criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
 # Use Adam optimizer
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
+model = torch.compile(model)
+
 # Define a function to compute the accuracy of the model on a given data loader
 
 

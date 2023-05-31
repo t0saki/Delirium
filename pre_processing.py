@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 
-df = pd.read_csv('20220328-or-eng.csv')
+df = pd.read_csv('datasets/20220328-or-eng-shrink.csv')
 
 removed_cols = ['Postoperative Olanzapine',
                 'Postoperative Fluphenazine', 'Postoperative Flupentixol']
@@ -24,18 +24,28 @@ for col in time_cols1:
 for col in time_cols2:
     data[col] = data[col].astype('int64') / 10**9
 
-# Add label column to each column to indicate NaN values
+# # Add label column to each column to indicate NaN values
+# data_full = pd.DataFrame()
+# cols = data.columns
+# for i in cols:
+#     # if have NaN
+#     if data[i].isnull().any():
+#         data_full[i] = data[i]
+#         # if data_full[i] has NaN, set to 0
+#         for j in data_full[i].index:
+#             if pd.isnull(data_full[i][j]):
+#                 data_full[i][j] = 0
+#         data_full[i+'_label'] = data[i].isnull().astype(int)
+#     else:
+#         data_full[i] = data[i]
+
+# Convert NaN to -max
 data_full = pd.DataFrame()
 cols = data.columns
 for i in cols:
     # if have NaN
     if data[i].isnull().any():
-        data_full[i] = data[i]
-        # if data_full[i] has NaN, set to 0
-        for j in data_full[i].index:
-            if pd.isnull(data_full[i][j]):
-                data_full[i][j] = 0
-        data_full[i+'_label'] = data[i].isnull().astype(int)
+        data_full[i] = data[i].fillna(-data[i].max())
     else:
         data_full[i] = data[i]
 
@@ -48,4 +58,4 @@ data_full = pd.DataFrame(scaler.fit_transform(
 # data_full = pd.concat(data_full, axis=1)
 
 # Save to csv
-data_full.to_csv('20220328-or-eng-full.csv', index=False)
+data_full.to_csv('datasets/20220328-or-eng-shrink-full.csv', index=False)
