@@ -23,7 +23,8 @@ batch_size = 32
 test_size = 0.3
 dropout_rate = 0.5
 pos_weight_ratio = 10
-ds_name = 'datasets/20220328-or-eng-shrink-full.csv'
+# ds_name = 'datasets/20220328-or-eng-shrink-full.csv'
+ds_name = 'output2.csv'
 train = True
 
 # %%
@@ -85,7 +86,7 @@ train_target = train_target.to(device)
 test_target = test_target.to(device)
 
 # Compile model
-model = torch.compile(model)
+# model = torch.compile(model)
 
 # %%
 
