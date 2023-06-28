@@ -1,4 +1,5 @@
 # Import libraries
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -35,16 +36,17 @@ class EEGDataset(Dataset):
 
 # Define the hyperparameters
 input_size = 4  # The number of input channels
-hid_size = 96  # The hidden size of the RNN layer
+hid_size = 128  # The hidden size of the RNN layer
 rnn_type = 'lstm'  # The type of the RNN layer
 bidirectional = True  # Whether to use bidirectional RNN or not
 n_classes = 2  # The number of output classes
 kernel_size = 5  # The kernel size of the convolution layer
 batch_size = 128  # The batch size for training and validation
-num_epochs = 100  # The number of epochs for training
-learning_rate = 0.00001  # The learning rate for the optimizer
+num_epochs = 300  # The number of epochs for training
+learning_rate = 0.000001  # The learning rate for the optimizer
 # The device to use for training and inference
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+torch.set_float32_matmul_precision('high')
 
 # Define the time length for each sample
 time_len = 2048
@@ -104,6 +106,8 @@ def accuracy(loader):
     tn = 0
     fp = 0
     fn = 0
+    # Initialize the total loss
+    loss = 0.0
     # Iterate through the batches in the loader
     with torch.no_grad():  # No need to compute gradients for validation
         for x, y in loader:
@@ -112,6 +116,8 @@ def accuracy(loader):
             y = y.to(device)
             # Forward pass the inputs through the model and get the outputs
             outputs = model(x)
+            # Compute the loss using the criterion function
+            loss += criterion(outputs, y).item()
             # Get the predicted labels by taking the argmax of the outputs
             preds = outputs > 0.5
             # Update the total number of samples
@@ -127,8 +133,13 @@ def accuracy(loader):
     sensitivity = tp / (tp + fn)
     specificity = tn / (tn + fp)
     # Return the accuracy, sensitivity, and specificity
-    return correct / total, sensitivity, specificity
+    return correct / total, sensitivity, specificity, loss
 
+
+train_losses = []
+test_losses = []
+sensitivities = []
+sppecificities = []
 
 # Train the model for a given number of epochs
 for epoch in range(num_epochs):
@@ -162,11 +173,27 @@ for epoch in range(num_epochs):
         pbar.set_postfix({'loss': running_loss / (pbar.n + 1),
                          'acc': running_acc / (pbar.n + 1)})
 
-    # Compute and print the validation accuracy for this epoch
-    val_acc, sensitivity, specificity = accuracy(val_loader)
-    print(
-        f'Validation accuracy: {val_acc:.4f}, sensitivity: {sensitivity:.4f}, specificity: {specificity:.4f}')
-
     # Save the whole model ckeckpoint
     if (epoch + 1) % 10 == 0:
+        # Compute and print the validation accuracy for this epoch
+        val_acc, sensitivity, specificity, val_loss = accuracy(val_loader)
+        print(
+            f'Validation accuracy: {val_acc:.4f}, sensitivity: {sensitivity:.4f}, specificity: {specificity:.4f}')
         torch.save(model.state_dict(), f'pths/clam-{epoch}.pth')
+        train_losses.append(running_loss / len(train_loader))
+        test_losses.append(val_loss / len(val_loader))
+        sensitivities.append(sensitivity)
+        sppecificities.append(specificity)
+
+# Draw the loss ,sensitivity and specificity curve
+plt.figure()
+plt.plot(train_losses, label='train loss')
+plt.plot(test_losses, label='test loss')
+plt.legend()
+plt.savefig('loss.png')
+
+plt.figure()
+plt.plot(sensitivities, label='sensitivity')
+plt.plot(sppecificities, label='specificity')
+plt.legend()
+plt.savefig('sens.png')
