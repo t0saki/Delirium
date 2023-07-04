@@ -54,28 +54,34 @@ def process_others(row):
               'Lymphocyte Absolute Count', 'Platelet Count', 'Anesthesia Time', 'Creatinine', 'Albumin']
 
     processed = False
-    if is_positive(row):
-        for item in others:
-            if row[item] == '':
-                row[item] = -1
-                processed = True
-        return [row, processed]
+    # if is_positive(row):
+    #     for item in others:
+    #         if row[item] == '':
+    #             row[item] = -1
+    #             processed = True
+    #     return [row, processed]
+
+    # for item in others:
+    #     if row[item] == '':
+    #         return [None, False]
+    #     return [row, False]
+
+    # return [row, False]
 
     for item in others:
         if row[item] == '':
-            return [None, False]
-        return [row, False]
+            row[item] = -1
+            processed = True
+    return [row, processed]
 
-    return [row, False]
 
+# def process_diseases(row):
+#     disease_order = 0
+#     for disease in diseases:
+#         if row[disease] == '1':
+#             disease_order += 1
 
-def process_diseases(row):
-    disease_order = 0
-    for disease in diseases:
-        if row[disease] == '1':
-            disease_order += 1
-
-    return disease_order
+#     return disease_order
 
 
 def process_row(row, headers, positive_processed, negative_dropped):
@@ -89,12 +95,14 @@ def process_row(row, headers, positive_processed, negative_dropped):
 
     # Process BMI
     bmi = process_bmi(row)
-    if bmi is None and is_positive(row):
+    if bmi is None:
+        # if bmi is None and is_positive(row):
         bmi = -1
 
     # Process surgery time
     surgery_time = process_sur_time(row)
-    if surgery_time is None and is_positive(row):
+    if surgery_time is None:
+        # if surgery_time is None and is_positive(row):
         surgery_time = -1
 
     if bmi == -1 or surgery_time == -1:
