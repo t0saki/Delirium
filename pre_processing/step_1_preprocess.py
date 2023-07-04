@@ -102,14 +102,14 @@ def process_row(row, headers, positive_processed, negative_dropped):
     if bmi is None or surgery_time is None:
         negative_dropped += 1
 
-    disease_order = process_diseases(row)
+    # disease_order = process_diseases(row)
 
     new_row = None
     if bmi is not None and surgery_time is not None:
         new_row = {header: row[header] for header in headers}
         new_row['Surgery Time'] = surgery_time
         new_row['BMI'] = bmi
-        new_row['Disease Order'] = disease_order
+        # new_row['Disease Order'] = disease_order
         new_row['Label'] = row['Label']
 
     return [new_row, positive_processed, negative_dropped]
@@ -133,7 +133,7 @@ with open('datasets/20220328-or-eng-shrink.csv', 'r', encoding='utf-8') as input
 
     # Create a list of headers to keep
     headers = [header for header in field_names if header not in (
-        useless_headers + tagging_headers + diseases)]
+        useless_headers + tagging_headers)]
 
     # Create a list to hold the output rows
     output_rows = []
@@ -168,7 +168,7 @@ output_path = os.path.dirname(__file__) + '\\output.csv'
 with open(output_path, 'w', newline='', encoding='utf-8') as output_file:
     # Write the output rows to the output file
     writer = csv.DictWriter(
-        output_file, fieldnames=headers + ['Surgery Time'] + ['BMI'] + ['Disease Order'] + ['Label'])
+        output_file, fieldnames=headers + ['Surgery Time'] + ['BMI'] + ['Label'])
     writer.writeheader()
     writer.writerows(output_rows)
 
