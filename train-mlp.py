@@ -16,14 +16,16 @@ from models.MLP import MLP
 hidden_dim = 8
 layers = 3
 output_dim = 1
-learning_rate = 0.00005
+# learning_rate = 0.00005
+learning_rate = 0.0005
 num_epochs = 2000
 epochs_step = 10
 batch_size = 32
 test_size = 0.3
 dropout_rate = 0.5
-pos_weight_ratio = 10
-ds_name = 'datasets/20220328-or-eng-shrink-full.csv'
+pos_weight_ratio = 5
+# ds_name = 'datasets/20220328-or-eng-shrink-full.csv'
+ds_name = 'output2.csv'
 train = True
 
 # %%
@@ -85,7 +87,7 @@ train_target = train_target.to(device)
 test_target = test_target.to(device)
 
 # Compile model
-model = torch.compile(model)
+# model = torch.compile(model)
 
 # %%
 
