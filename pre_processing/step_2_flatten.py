@@ -2,11 +2,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 
-df = pd.read_csv('output.csv')
+df = pd.read_csv('pre_processing/output.csv')
 
-removed_cols = ['Postoperative Olanzapine',
-                'Postoperative Fluphenazine', 'Postoperative Flupentixol']
-data = df.drop(removed_cols, axis=1)
+data = df
 
 # Convert NaN to -max
 data_full = pd.DataFrame()
@@ -27,5 +25,5 @@ data_full = pd.DataFrame(scaler.fit_transform(
 # data_full = pd.concat(data_full, axis=1)
 
 # Save to csv
-data_full.to_csv('output2.csv', index=False)
+data_full.to_csv('pre_processing/output2.csv', index=False)
 print('Output file written successfully.')
