@@ -15,6 +15,7 @@ class TransformerModel(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
+        x = x.permute(0, 2, 1)
         x = self.embedding(x)
         x = self.positional_encoding(x)
         for transformer_layer in self.transformer_layers:
@@ -71,3 +72,22 @@ class TransformerLayer(nn.Module):
         x = x + residual
 
         return x
+
+
+if __name__ == '__main__':
+    seq_len = 128
+    batch_size = 32
+    hidden_dim = 64
+    output_dim = 1
+    num_layers = 2
+    num_heads = 64
+    dropout_rate = 0.1
+
+    model = TransformerModel(input_dim=4, output_dim=output_dim, hidden_dim=hidden_dim,
+                             num_layers=num_layers, num_heads=num_heads, dropout_rate=dropout_rate)
+
+    # Test the model
+    x = torch.randn(32, 4, 128)
+
+    y = model(x)
+    print(y.shape)
