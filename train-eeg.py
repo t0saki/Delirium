@@ -175,7 +175,9 @@ def accuracy(loader):
 try:
     train_losses = []
     test_losses = []
-    acc_dict = acc_dict_base.copy()
+    acc_dict = {}
+    for key in acc_dict_base.keys():
+        acc_dict[key] = []
 
     # Train the model for a given number of epochs
     for epoch in range(num_epochs):
@@ -230,13 +232,15 @@ try:
             # acc_dict['accuracy'].append(val_acc)
             # acc_dict['train_losses'].append(running_loss / len(train_loader))
             # acc_dict['test_losses'].append(val_loss / len(val_loader))
-            acc_dict.update(acc_dict_update)
+            for key, value in acc_dict_update.items():
+                acc_dict[key].extend(value)
 
-except Exception as e:
-    # Save to csv
-    df = pd.DataFrame.from_dict(acc_dict)
-    df.to_csv(f'{task_name}.csv', index=False)
-    raise e
+except KeyboardInterrupt:
+    pass
+
+# Save to csv
+df = pd.DataFrame.from_dict(acc_dict)
+df.to_csv(f'{task_name}.csv', index=False)
 
 # Draw the loss ,sensitivity and specificity curve
 # plt.figure()
