@@ -10,12 +10,10 @@ data = df
 data_full = pd.DataFrame()
 cols = data.columns
 for i in cols:
-    # if have NaN
-    # if data[i].isnull().any():
-    #     data_full[i] = data[i].fillna(-data[i].max())
-    # else:
-    #     data_full[i] = data[i]
-    data_full[i] = data[i]
+    if data[i].isnull().any():
+        data_full[i] = data[i].fillna(0)
+    else:
+        data_full[i] = data[i]
 
 # Normalize 0-1
 scaler = MinMaxScaler()
